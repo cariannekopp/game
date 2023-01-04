@@ -25,7 +25,7 @@ loadSprite("ground", "ground2.png?raw=true");
 loadSprite("coin", "coin.png?raw=true");
 loadSprite("background", "backdrop.gif?raw=true")
 loadSprite("shrekFace", "shrekface.png?raw=true")
-loadSprite("villager", "sprites/spritesvillager.png?raw=true")
+loadSprite("villager", "sprites/villager.png?raw=true")
 loadSprite("elmoFire", "elmoFire.gif?raw=true")
 
 loadSound("gtfoMySwamp", "sounds/swamp-remix.mp3?raw=true")
