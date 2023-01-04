@@ -1,225 +1,228 @@
-const FLOOR_HEIGHT = 48;
-const JUMP_FORCE = 800;
-const SPEED = 480;
-const MOVE_FORCE = 100;
-const CREEP_SPEED = 120;
-let score = 0;
-
-// initialize context
-kaboom();
-
-//set resource url
-loadRoot('https://raw.githubusercontent.com/cariannekopp/game/main/assets/')
-// load assets
-loadSprite("shrek", "shrekLookRight.png?raw=true");
-loadSprite("ground", "ground2.png?raw=true");
-loadSprite("coin", "coin.png?raw=true");
-loadSprite("background", "backdrop.gif?raw=true")
-loadSprite("shrekFace", "shrekface.png?raw=true")
-loadSprite("villager", "villager.png?raw=true")
-loadSprite("elmoFire", "elmoFire.gif?raw=true")
-
-loadSound("gtfoMySwamp", "swamp-remix.mp3?raw=true")
-loadSound("gameOver", "smash-mouth-all-star.mp3?raw=true")
-
-
-
-scene("game", () => {
-    // define gravity
-    gravity(2400);
-	//set up layers
-	layers([
-    "bg",
-    "game",
-    "ui",
-], "game")
-    // add a game object to screen
-    const player = add([
-        // list of components
-        sprite("shrek"),
-        pos(40, 100),
-        area(),
-        body(),
-		health(5),
-		//outview({onExitView: (go("lose", score))}),
-		"player",
-    ]);
-
-	//backdrop
-	const backdrop = add([
-		sprite("background"),
-		scale(1.75),
-		pos(0, 0),
-		layer("bg"),
-	])
-    // floor
-	function setGroundWidth() {
-		let screenWidth = width();
-		const groundWidth = 193;
-		let groundNeeded = Math.ceil(screenWidth / groundWidth)
-		let groundCoordinates = []
-		for(i=0; i < groundNeeded; i++) {
-			groundCoordinates.push(i*groundWidth)
-		}
-		return groundCoordinates
-	}
-
-	function createGround() {
-		let groundCoordinates = setGroundWidth()
-		for(i=0; i < groundCoordinates.length; i++) {
-		  add([
-		    sprite("ground"),
-            pos(groundCoordinates[i], height()),
-            origin("bot"),
-            area(),
-            solid(),
-          ]);
-		}
-	}
-
-	createGround()
-
-    function jump() {
-        if (player.isGrounded()) {
-            player.jump(JUMP_FORCE);
-        }
-    }
-
-    // jump when user press space
-    onKeyPress("space", jump);
-
-	onKeyDown("up", () => {
-		jump();
-	})
-
-	onKeyDown("right", () => {
-		player.move(SPEED, 0)
-	})
-
-	onKeyDown("left", () => {
-		player.move(-SPEED, 0)
-	})
-
-	player.onUpdate(() => {
-    if (player.pos.x >= width() || player.pos.x < -1) {
-        destroy(player)
-        go("lose", score)
-    }
+kaboom({
+  global: true,
+  fullscreen: true,
+  scale: 2,
+  debug: true,
+  clearColor: [0, 0, 0, 1],
 })
 
-	function spawnCoin() {
-		add([
-			sprite("coin"),
-			scale(2),
-			area(),
-			pos(880, rand(200, 250)),
-			origin('botleft'),
-			move(LEFT, SPEED),
-			"coin",
-		])
-		wait(rand(0.5, 1.5), spawnCoin);
-	}
+// Speed identifiers
+const MOVE_SPEED = 120
+const JUMP_FORCE = 360
+const BIG_JUMP_FORCE = 550
+let CURRENT_JUMP_FORCE = JUMP_FORCE
+const FALL_DEATH = 400
+const ENEMY_SPEED = 20
 
-spawnCoin()
+// Game logic
 
-    player.onCollide("coin", (coin) => {
-		destroy(coin);
-        burp();
-        addKaboom(player.pos);
-		updateScore();
-    });
-	
-   player.onCollide("enemy", () => {
-     go("lose", score)
-   })
+let isJumping = true
 
-    const scoreLabel = add([
-        text(score),
-        pos(24, 24),
-    ]);
+loadRoot('https://i.imgur.com/')
+loadSprite('coin', 'wbKxhcd.png')
+loadSprite('evil-shroom', 'KPO3fR9.png')
+loadSprite('brick', 'pogC9x5.png')
+loadSprite('block', 'M6rwarW.png')
+loadSprite('mario', 'Wb1qfhK.png')
+loadSprite('mushroom', '0wMd92p.png')
+loadSprite('surprise', 'gesQ1KP.png')
+loadSprite('unboxed', 'bdrLpi6.png')
+loadSprite('pipe-top-left', 'ReTPiWY.png')
+loadSprite('pipe-top-right', 'hj2GK4n.png')
+loadSprite('pipe-bottom-left', 'c1cYSbt.png')
+loadSprite('pipe-bottom-right', 'nqQ79eI.png')
 
-	function updateScore() {
-		score++
-		scoreLabel.text = score;
-		addCraziness(score);
-		return score;
-	}
-
-	function addCraziness(score) {
-		console.log(score)
-		switch(score) {
-			case 5:
-				shrekCreep();
-				break;
-			case 12:
-				villagerAttack();
-				break;
-			default:
-				break;
-		}
-	}
-});
-
-function shrekCreep() {
-	add([
-		sprite("shrekFace"),
-		layer("bg"),
-		area(),
-		pos((width()/2), 500),
-		origin('center'),
-		//move(player.pos, CREEP_SPEED),
-		move(UP, CREEP_SPEED),
-		cleanup(),
-	])
-}
+loadSprite('blue-block', 'fVscIbn.png')
+loadSprite('blue-brick', '3e5YRQd.png')
+loadSprite('blue-steel', 'gqVoI2b.png')
+loadSprite('blue-evil-shroom', 'SvV4ueD.png')
+loadSprite('blue-surprise', 'RMqCc1G.png')
 
 
-function villagerAttack() {
-	let enemyMusic = play("gtfoMySwamp")
-	const enemy = 
-	add([
-		sprite("villager"),
-		area(),
-		pos(640, 100),
-		body(),
-		shake(),
-		state("idle", ["idle", "attack", "move"]),
-		"enemy",
-	])
-}
 
+scene("game", ({ level, score }) => {
+  layers(['bg', 'obj', 'ui'], 'obj')
 
-scene("lose", (score) => {
-	let gameOverSound = play("gameOver")
-	gameOverSound.loop();
-	add([
-		sprite("elmoFire"),
-		layer("bg"),
-		scale(1.75),
-	])
-	
-    add([
-        sprite("shrek"),
-        pos(width() / 2, height() / 2 - 80),
-        scale(2),
-        origin("center"),
-		layer("game"),
-    ]);
+  const maps = [
+    [
+      '                                      ',
+      '                                      ',
+      '                                      ',
+      '                                      ',
+      '                                      ',
+      '     %   =*=%=                        ',
+      '                                      ',
+      '                            -+        ',
+      '                    ^   ^   ()        ',
+      '==============================   =====',
+    ],
+    [
+      '£                                       £',
+      '£                                       £',
+      '£                                       £',
+      '£                                       £',
+      '£                                       £',
+      '£        @@@@@@              x x        £',
+      '£                          x x x        £',
+      '£                        x x x x  x   -+£',
+      '£               z   z  x x x x x  x   ()£',
+      '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
+    ]
+  ]
 
-    // display score
-    add([
-        text(score),
-        pos(width() / 2, height() / 2 + 80),
-        scale(2),
-        origin("center"),
-		layer("game")
-    ]);
+  const levelCfg = {
+    width: 20,
+    height: 20,
+    '=': [sprite('block'), solid()],
+    '$': [sprite('coin'), 'coin'],
+    '%': [sprite('surprise'), solid(), 'coin-surprise'],
+    '*': [sprite('surprise'), solid(), 'mushroom-surprise'],
+    '}': [sprite('unboxed'), solid()],
+    '(': [sprite('pipe-bottom-left'), solid(), scale(0.5)],
+    ')': [sprite('pipe-bottom-right'), solid(), scale(0.5)],
+    '-': [sprite('pipe-top-left'), solid(), scale(0.5), 'pipe'],
+    '+': [sprite('pipe-top-right'), solid(), scale(0.5), 'pipe'],
+    '^': [sprite('evil-shroom'), solid(), 'dangerous'],
+    '#': [sprite('mushroom'), solid(), 'mushroom', body()],
+    '!': [sprite('blue-block'), solid(), scale(0.5)],
+    '£': [sprite('blue-brick'), solid(), scale(0.5)],
+    'z': [sprite('blue-evil-shroom'), solid(), scale(0.5), 'dangerous'],
+    '@': [sprite('blue-surprise'), solid(), scale(0.5), 'coin-surprise'],
+    'x': [sprite('blue-steel'), solid(), scale(0.5)],
 
-    // go back to game with space is pressed
-	onKeyPress("space", () => gameOverSound.pause())
-    onKeyPress("space", () => go("game"));
-    onClick(() => go("game"));
+  }
 
-});
+  const gameLevel = addLevel(maps[level], levelCfg)
 
-go("game");
+  const scoreLabel = add([
+    text(score),
+    pos(30, 6),
+    layer('ui'),
+    {
+      value: score,
+    }
+  ])
+
+  add([text('level ' + parseInt(level + 1) ), pos(40, 6)])
+  
+  function big() {
+    let timer = 0
+    let isBig = false
+    return {
+      update() {
+        if (isBig) {
+          CURRENT_JUMP_FORCE = BIG_JUMP_FORCE
+          timer -= dt()
+          if (timer <= 0) {
+            this.smallify()
+          }
+        }
+      },
+      isBig() {
+        return isBig
+      },
+      smallify() {
+        this.scale = vec2(1)
+        CURRENT_JUMP_FORCE = JUMP_FORCE
+        timer = 0
+        isBig = false
+      },
+      biggify(time) {
+        this.scale = vec2(2)
+        timer = time
+        isBig = true     
+      }
+    }
+  }
+
+  const player = add([
+    sprite('mario'), solid(),
+    pos(30, 0),
+    body(),
+    big(),
+    origin('bot')
+  ])
+
+  action('mushroom', (m) => {
+    m.move(20, 0)
+  })
+
+  player.on("headbump", (obj) => {
+    if (obj.is('coin-surprise')) {
+      gameLevel.spawn('$', obj.gridPos.sub(0, 1))
+      destroy(obj)
+      gameLevel.spawn('}', obj.gridPos.sub(0,0))
+    }
+    if (obj.is('mushroom-surprise')) {
+      gameLevel.spawn('#', obj.gridPos.sub(0, 1))
+      destroy(obj)
+      gameLevel.spawn('}', obj.gridPos.sub(0,0))
+    }
+  })
+
+  player.collides('mushroom', (m) => {
+    destroy(m)
+    player.biggify(6)
+  })
+
+  player.collides('coin', (c) => {
+    destroy(c)
+    scoreLabel.value++
+    scoreLabel.text = scoreLabel.value
+  })
+
+  action('dangerous', (d) => {
+    d.move(-ENEMY_SPEED, 0)
+  })
+
+  player.collides('dangerous', (d) => {
+    if (isJumping) {
+      destroy(d)
+    } else {
+      go('lose', { score: scoreLabel.value})
+    }
+  })
+
+  player.action(() => {
+    camPos(player.pos)
+    if (player.pos.y >= FALL_DEATH) {
+      go('lose', { score: scoreLabel.value})
+    }
+  })
+
+  player.collides('pipe', () => {
+    keyPress('down', () => {
+      go('game', {
+        level: (level + 1) % maps.length,
+        score: scoreLabel.value
+      })
+    })
+  })
+
+  keyDown('left', () => {
+    player.move(-MOVE_SPEED, 0)
+  })
+
+  keyDown('right', () => {
+    player.move(MOVE_SPEED, 0)
+  })
+
+  player.action(() => {
+    if(player.grounded()) {
+      isJumping = false
+    }
+  })
+
+  keyPress('space', () => {
+    if (player.grounded()) {
+      isJumping = true
+      player.jump(CURRENT_JUMP_FORCE)
+    }
+  })
+})
+
+scene('lose', ({ score }) => {
+  add([text(score, 32), origin('center'), pos(width()/2, height()/ 2)])
+})
+
+start("game", { level: 0, score: 0})

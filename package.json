@@ -2,16 +2,9 @@
   "name": "game",
   "version": "1.0.0",
   "description": "shrek game",
-  "main": "index.js",
+  "main": "src/index.html",
   "scripts": {
-    "dev": "NODE_ENV=development node scripts/build.js",
-    "build": "node scripts/build.js",
-    "check": "tsc",
-    "lint": "eslint src examples",
-    "fmt": "eslint --fix src examples",
-    "test": "node scripts/test.js",
-    "run:desktop": "neu run",
-    "prepare": "npm run build"
+    "start": ""
   },
   "repository": {
     "type": "git",
@@ -28,7 +21,7 @@
   },
   "homepage": "https://github.com/cariannekopp/game#readme",
   "dependencies": {
-    "kaboom": "^2000.2.9"
-  },
-  "devDependencies": {}
+    "esbuild": "0.16.13",
+    "kaboom": "^0.5.0"
+  }
 }
