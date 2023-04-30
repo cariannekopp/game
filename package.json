@@ -4,7 +4,7 @@
   "description": "shrek game",
   "main": "src/index.html",
   "scripts": {
-    "start": ""
+    "start": "esbuild game.js --bundle > build.js"
   },
   "repository": {
     "type": "git",
@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/cariannekopp/game#readme",
   "dependencies": {
-    "esbuild": "0.16.13",
-    "kaboom": "^0.5.0"
+    "esbuild": "0.16.17",
+    "kaboom": "^0.5.1"
   }
 }
