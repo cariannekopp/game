@@ -12,8 +12,6 @@ gameMap.src = './assets/pokemonStyleGameMap.png'
 const playerImage = new Image()
 playerImage.src = './assets/playerDown.png'
 
-//const mapStartXPosition = -2335;
-//const mapStartYPosition = -410;
 const playerStartXPosition = (canvas.width / 2) + 10;
 const playerStartYPosition = (canvas.height / 2) - 10;
 
@@ -23,7 +21,7 @@ class Sprite {
         this.image = image;
     }
     draw() {
-        context.drawImage(this.image, -2335, -410)
+        context.drawImage(this.image, this.position.x, this.position.y)
     }
 }
 
@@ -78,6 +76,14 @@ function animate() {
         playerImage.width / 4, //width of image
         playerImage.height //height of image
     )
+    if(keys.w.pressed) {background.position.y += 3}
+    if(keys.ArrowUp.pressed) {background.position.y += 3}
+    if(keys.s.pressed) {background.position.y -= 3}
+    if(keys.ArrowDown.pressed) {background.position.y -= 3}
+    if(keys.a.pressed) {background.position.x += 3}
+    if(keys.ArrowLeft.pressed) {background.position.x += 3}
+    if(keys.d.pressed) {background.position.x -= 3}
+    if(keys.ArrowRight.pressed) {background.position.x -= 3}
 }
 
 animate()
@@ -107,6 +113,37 @@ window.addEventListener('keydown', (e) => {
             break;
         case 'ArrowRight':
             keys.ArrowRight.pressed = true;
+            break;
+        default:
+            console.log('not a functional key')
+    }
+})
+
+window.addEventListener('keyup', (e) => {
+    switch (e.key) {
+        case 'a':
+            keys.a.pressed = false;
+            break;
+        case 'ArrowLeft':
+            keys.ArrowLeft.pressed = false;
+            break;
+        case 's':
+            keys.s.pressed = false;
+            break;
+        case 'ArrowDown':
+            keys.ArrowDown.pressed = false;
+            break;
+        case 'w':
+            keys.w.pressed = false;
+            break;
+        case 'ArrowUp':
+            keys.ArrowUp.pressed = false;
+            break;
+        case 'd':
+            keys.d.pressed = false;
+            break;
+        case 'ArrowRight':
+            keys.ArrowRight.pressed = false;
             break;
         default:
             console.log('not a functional key')
